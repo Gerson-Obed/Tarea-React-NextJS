@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "lh:antes": "npx -y lighthouse@12 http://localhost:3000 --preset=desktop --output=html --output=json --chrome-flags=--headless --output-path=../lighthouse/antes",
+    "lh:despues": "npx -y lighthouse@12 http://localhost:3000 --preset=desktop --output=html --output=json --chrome-flags=--headless --output-path=../lighthouse/despues"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
