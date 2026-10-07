@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { alternarTarea, crearTareaApi, traerTareas, type ErrorApi } from '@/lib/api';
 import { crearTarea, MATERIAS, type Tarea } from '@/lib/tareas.schema';
+import { enviarEvento } from '@/lib/ga';
 
 // La llave con la que se guarda la lista en el caché.
 const LLAVE = ['tareas'];
@@ -28,7 +29,9 @@ export function ListaViva({ iniciales }: { iniciales: Tarea[] }) {
 
   const crear = useMutation({
     mutationFn: crearTareaApi,
-    onSuccess: () => {
+    onSuccess: (tarea) => {
+      // Evento clave propio del módulo para GA4.
+      enviarEvento('tarea_creada', { materia: tarea.materia });
       setTitulo('');
       setErrores({});
       // Marca la lista como vieja: useQuery la vuelve a pedir sola.
@@ -92,7 +95,9 @@ export function ListaViva({ iniciales }: { iniciales: Tarea[] }) {
 
       <form onSubmit={enviar} className="mt-4 flex flex-col gap-2 sm:flex-row">
         <div className="flex-1">
+          <label htmlFor="titulo" className="sr-only">Título de la tarea</label>
           <input
+            id="titulo"
             value={titulo}
             onChange={(e) => setTitulo(e.target.value)}
             placeholder="Nueva tarea"
@@ -101,7 +106,9 @@ export function ListaViva({ iniciales }: { iniciales: Tarea[] }) {
           {errores.titulo && <p className="mt-1 text-sm text-red-600">{errores.titulo}</p>}
         </div>
         <div>
+          <label htmlFor="materia" className="sr-only">Materia</label>
           <select
+            id="materia"
             value={materia}
             onChange={(e) => setMateria(e.target.value)}
             className="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2"
@@ -131,6 +138,7 @@ export function ListaViva({ iniciales }: { iniciales: Tarea[] }) {
               type="checkbox"
               checked={t.hecha}
               onChange={() => marcar.mutate(t.id)}
+              aria-label={`Marcar «${t.titulo}» como ${t.hecha ? 'pendiente' : 'hecha'}`}
               className="size-5"
             />
             <div className="min-w-0 flex-1">
